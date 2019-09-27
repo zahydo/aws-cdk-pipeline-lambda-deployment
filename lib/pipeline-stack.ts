@@ -1,7 +1,6 @@
 import { App, Stack, StackProps } from '@aws-cdk/core';
 import lambda = require('@aws-cdk/aws-lambda');
 import codecommit = require('@aws-cdk/aws-codecommit');
-import codedeploy = require('@aws-cdk/aws-codedeploy');
 import codebuild = require('@aws-cdk/aws-codebuild');
 import codepipeline = require('@aws-cdk/aws-codepipeline');
 import codepipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
@@ -77,6 +76,7 @@ export class PipelineStack extends Stack {
     const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
 
     new codepipeline.Pipeline(this, 'Pipeline', {
+      artifactBucket: new s3.Bucket(this, 'PipeLineBucket', {bucketName: 'BucketForPipelineLambda'}),
       stages: [
         {
           stageName: 'Source',
