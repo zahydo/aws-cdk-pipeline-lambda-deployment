@@ -1,5 +1,3 @@
-const axios = require('axios')
-const url = 'http://checkip.amazonaws.com/';
 let response;
 
 /**
@@ -16,11 +14,10 @@ let response;
  */
 exports.handler = async (event, context) => {
     try {
-        const ret = await axios(url);
         response = {
             'statusCode': 201,
             'body': JSON.stringify({
-                message: 'hello world, this is the five version ' + ret.data.trim()
+                message: 'hello world, this is the five version ' + event.headers.Host
                 // location: ret.data.trim()
             })
         }
