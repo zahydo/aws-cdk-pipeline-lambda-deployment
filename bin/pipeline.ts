@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import cdk = require('@aws-cdk/core');
+import {App} from '@aws-cdk/core'
 import { PipelineStack } from '../lib/pipeline-stack';
+import { LambdaStack } from '../lib/lambda-stack';
 
-const app = new cdk.App();
-new PipelineStack(app, 'PipelineStack');
+const app = new App();
+const lambdaStack = new LambdaStack(app, 'LambdaStack')
+new PipelineStack(app, 'PipelineStack', {
+  lambdaCode: lambdaStack.lambdaCode,
+});
+
+app.synth();
