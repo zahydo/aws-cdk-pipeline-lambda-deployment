@@ -17,11 +17,12 @@ export class LambdaStack extends Stack {
       code: this.lambdaCode,
       handler: 'index.handler',
       runtime: lambda.Runtime.NODEJS_8_10,
+      functionName: 'lambda_in_pipeline'
     });
     
     const version = func.addVersion(new Date().toISOString());
     const alias = new lambda.Alias(this, 'LambdaAlias', {
-      aliasName: 'Prod',
+      aliasName: 'Production',
       version: version,
     });
 
@@ -32,6 +33,7 @@ export class LambdaStack extends Stack {
     new codedeploy.LambdaDeploymentGroup(this, 'DeploymentGroup', {
       alias: alias,
       deploymentConfig: codedeploy.LambdaDeploymentConfig.LINEAR_10PERCENT_EVERY_1MINUTE,
+      deploymentGroupName: 'LambdaDeploymentGroup'
     });
   }
 }
