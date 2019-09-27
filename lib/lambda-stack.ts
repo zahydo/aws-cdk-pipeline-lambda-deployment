@@ -16,8 +16,7 @@ export class LambdaStack extends Stack {
     const func = new lambda.Function(this, 'Lambda', {
       code: this.lambdaCode,
       handler: 'index.handler',
-      runtime: lambda.Runtime.NODEJS_8_10,
-      functionName: 'lambda_in_pipeline'
+      runtime: lambda.Runtime.NODEJS_8_10
     });
     
     const version = func.addVersion(new Date().toISOString());
