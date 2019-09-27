@@ -116,6 +116,7 @@ export class PipelineStack extends Stack {
               parameterOverrides: {
                 ...props.lambdaCode.assign(lambdaBuildOutput.s3Location),
               },
+              extraInputs: [lambdaBuildOutput],
             }),
           ],
         },
