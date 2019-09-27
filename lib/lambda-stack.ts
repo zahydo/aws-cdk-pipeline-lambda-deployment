@@ -1,6 +1,7 @@
 import { App, Stack, StackProps } from '@aws-cdk/core';
 import codedeploy = require('@aws-cdk/aws-codedeploy');
 import lambda = require('@aws-cdk/aws-lambda');
+import api = require('@aws-cdk/aws-apigateway');
 
 
 export class LambdaStack extends Stack {
@@ -22,6 +23,10 @@ export class LambdaStack extends Stack {
     const alias = new lambda.Alias(this, 'LambdaAlias', {
       aliasName: 'Prod',
       version: version,
+    });
+
+    new api.LambdaRestApi(this, 'LambdaRestApi', {
+      handler: func
     });
 
     new codedeploy.LambdaDeploymentGroup(this, 'DeploymentGroup', {
