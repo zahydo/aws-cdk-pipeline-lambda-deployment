@@ -76,7 +76,7 @@ export class PipelineStack extends Stack {
     const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
 
     new codepipeline.Pipeline(this, 'Pipeline', {
-      artifactBucket: new s3.Bucket(this, 'PipeLineBucket', {bucketName: 'BucketForPipelineLambda'}),
+      artifactBucket: new s3.Bucket(this, 'PipeLineBucket', {bucketName: 'aws-bucket-for-pipeline-lambda-sample'}),
       stages: [
         {
           stageName: 'Source',
