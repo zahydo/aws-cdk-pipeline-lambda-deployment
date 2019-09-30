@@ -3,8 +3,8 @@ import codedeploy = require('@aws-cdk/aws-codedeploy');
 import lambda = require('@aws-cdk/aws-lambda');
 import api = require('@aws-cdk/aws-apigateway');
 // import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-// import iam = require('@aws-cdk/aws-iam');
-// import { PolicyStatement } from '@aws-cdk/aws-iam';
+import iam = require('@aws-cdk/aws-iam');
+import { PolicyStatement } from '@aws-cdk/aws-iam';
 
 
 export class LambdaStack extends Stack {
@@ -51,16 +51,19 @@ export class LambdaStack extends Stack {
       // }
     });
 
-    // preHook.addToRolePolicy(new PolicyStatement({
-    //   effect: iam.Effect.ALLOW, 
-    //   actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
-    //   resources: ['*'],
-    // }));
-    // preHook.addToRolePolicy(new PolicyStatement({
-    //   effect: iam.Effect.ALLOW, 
-    //   actions: ['lambda:InvokeFunction'], 
-    //   resources: ['*'],
-    // }));
+    preHook.addToRolePolicy(new PolicyStatement({
+      effect: iam.Effect.ALLOW, 
+      actions: ['codedeploy:PutLifecycleEventHookExecutionStatus',
+        'iam:PassRole',
+        'ec2:CreateTags',
+        'ec2:RunInstances'], 
+      resources: ['*'],
+    }));
+    preHook.addToRolePolicy(new PolicyStatement({
+      effect: iam.Effect.ALLOW, 
+      actions: ['lambda:InvokeFunction'], 
+      resources: [func.functionArn],
+    }));
 
     new api.LambdaRestApi(this, 'LambdaRestApi', {
       handler: func
