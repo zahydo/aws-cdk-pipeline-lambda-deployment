@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
         response = {
             'statusCode': 201,
             'body': JSON.stringify({
-                message: 'hello world, this is the first version ' + event.headers.Host
+                message: 'hello world, this is the second version ' + event.headers.Host
                 // location: ret.data.trim()
             })
         }
