@@ -34,22 +34,33 @@ export class LambdaStack extends Stack {
       handler: 'prehook.handler',
       runtime: lambda.Runtime.NODEJS_8_10,
       functionName: 'prehook_in_pipeline',
-      initialPolicy: [
-        new PolicyStatement({
-          effect: iam.Effect.ALLOW, 
-          actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
-          resources: ['*'],
-        }),
-        new PolicyStatement({
-          effect: iam.Effect.ALLOW, 
-          actions: ['lambda:InvokeFunction'], 
-          resources: ['*']
-        })
-      ],
-      environment: {
-        CurrentVersion: version.toString()
-      }
+      // initialPolicy: [
+      //   new PolicyStatement({
+      //     effect: iam.Effect.ALLOW, 
+      //     actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
+      //     resources: ['*'],
+      //   }),
+      //   new PolicyStatement({
+      //     effect: iam.Effect.ALLOW, 
+      //     actions: ['lambda:InvokeFunction'], 
+      //     resources: ['*']
+      //   })
+      // ],
+      // environment: {
+      //   CurrentVersion: version.toString()
+      // }
     });
+
+    preHook.addToRolePolicy(new PolicyStatement({
+      effect: iam.Effect.ALLOW, 
+      actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
+      resources: ['*'],
+    }));
+    preHook.addToRolePolicy(new PolicyStatement({
+      effect: iam.Effect.ALLOW, 
+      actions: ['lambda:InvokeFunction'], 
+      resources: ['*']
+    }));
 
     new api.LambdaRestApi(this, 'LambdaRestApi', {
       handler: func
