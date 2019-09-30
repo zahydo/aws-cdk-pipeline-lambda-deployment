@@ -17,7 +17,8 @@ export class LambdaStack extends Stack {
     this.lambdaCode = lambda.Code.cfnParameters();
 
     const func = new lambda.Function(this, 'Lambda', {
-      code: this.lambdaCode,
+      //code: this.lambdaCode,
+      code: lambda.Code.asset('lambda'),
       handler: 'index.handler',
       runtime: lambda.Runtime.NODEJS_10_X,
       functionName: 'lambda_in_pipeline',
@@ -30,7 +31,8 @@ export class LambdaStack extends Stack {
     });
 
     const preHook = new lambda.Function(this, 'PreHook', {
-      code: this.lambdaCode,
+      //code: this.lambdaCode,
+      code: lambda.Code.asset('lambda'),
       handler: 'prehook.handler',
       runtime: lambda.Runtime.NODEJS_8_10,
       functionName: 'prehook_in_pipeline',
