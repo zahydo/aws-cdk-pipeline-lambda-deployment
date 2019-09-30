@@ -62,6 +62,7 @@ export class PipelineStack extends Stack {
           'base-directory': 'lambda',
           files: [
             'index.js',
+            'prehook.js',
             'node_modules/**/*',
           ],
         },
