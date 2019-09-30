@@ -70,7 +70,7 @@ export class LambdaStack extends Stack {
       alias: alias,
       deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
       deploymentGroupName: 'LambdaDeploymentGroup',
-      // preHook: preHook,
+      preHook: preHook,
     });
   }
 }
