@@ -2,6 +2,7 @@ import { App, Stack, StackProps } from '@aws-cdk/core';
 import codedeploy = require('@aws-cdk/aws-codedeploy');
 import lambda = require('@aws-cdk/aws-lambda');
 import api = require('@aws-cdk/aws-apigateway');
+import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 
 
 export class LambdaStack extends Stack {
@@ -16,8 +17,21 @@ export class LambdaStack extends Stack {
     const func = new lambda.Function(this, 'Lambda', {
       code: this.lambdaCode,
       handler: 'index.handler',
+      runtime: lambda.Runtime.NODEJS_10_X,
+      functionName: 'lambda_in_pipeline',
+    });
+
+    const preHook = new lambda.Function(this, 'PreHook', {
+      code: this.lambdaCode,
+      handler: 'prehook.handler',
       runtime: lambda.Runtime.NODEJS_8_10,
-      functionName: 'lambda_in_pipeline'
+      functionName: 'prehook_in_pipeline',
+    });
+
+    const alarm = new cloudwatch.Alarm(this, '', {
+      evaluationPeriods: 1,
+      threshold: 1,
+      metric: func.metricErrors()
     });
     
     const version = func.addVersion(new Date().toISOString());
@@ -32,8 +46,10 @@ export class LambdaStack extends Stack {
 
     new codedeploy.LambdaDeploymentGroup(this, 'DeploymentGroup', {
       alias: alias,
-      deploymentConfig: codedeploy.LambdaDeploymentConfig.LINEAR_10PERCENT_EVERY_1MINUTE,
-      deploymentGroupName: 'LambdaDeploymentGroup'
+      deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
+      deploymentGroupName: 'LambdaDeploymentGroup',
+      preHook: preHook,
+      alarms: [alarm]
     });
   }
 }
