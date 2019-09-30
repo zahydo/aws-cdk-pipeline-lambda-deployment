@@ -60,6 +60,6 @@ export class LambdaStack extends Stack {
       deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
       deploymentGroupName: 'LambdaDeploymentGroup',
       preHook: preHook,
-    });
+    }).grantPutLifecycleEventHookExecutionStatus(preHook);
   }
 }
