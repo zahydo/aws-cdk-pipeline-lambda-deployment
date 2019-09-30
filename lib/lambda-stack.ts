@@ -53,10 +53,7 @@ export class LambdaStack extends Stack {
 
     preHook.addToRolePolicy(new PolicyStatement({
       effect: iam.Effect.ALLOW, 
-      actions: ['codedeploy:PutLifecycleEventHookExecutionStatus',
-        'iam:PassRole',
-        'ec2:CreateTags',
-        'ec2:RunInstances'], 
+      actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
       resources: ['*'],
     }));
     preHook.addToRolePolicy(new PolicyStatement({
@@ -65,15 +62,15 @@ export class LambdaStack extends Stack {
       resources: [func.functionArn],
     }));
 
-    new api.LambdaRestApi(this, 'LambdaRestApi', {
-      handler: func
-    });
-
     new codedeploy.LambdaDeploymentGroup(this, 'DeploymentGroup', {
       alias: alias,
       deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
       deploymentGroupName: 'LambdaDeploymentGroup',
       preHook: preHook,
+    });
+
+    new api.LambdaRestApi(this, 'LambdaRestApi', {
+      handler: func
     });
   }
 }
