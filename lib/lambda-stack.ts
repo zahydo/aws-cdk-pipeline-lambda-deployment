@@ -3,8 +3,8 @@ import codedeploy = require('@aws-cdk/aws-codedeploy');
 import lambda = require('@aws-cdk/aws-lambda');
 import api = require('@aws-cdk/aws-apigateway');
 // import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-// import iam = require('@aws-cdk/aws-iam');
-// import { PolicyStatement } from '@aws-cdk/aws-iam';
+import iam = require('@aws-cdk/aws-iam');
+import { PolicyStatement } from '@aws-cdk/aws-iam';
 
 
 export class LambdaStack extends Stack {
@@ -34,21 +34,21 @@ export class LambdaStack extends Stack {
       handler: 'prehook.handler',
       runtime: lambda.Runtime.NODEJS_8_10,
       functionName: 'prehook_in_pipeline',
-      // initialPolicy: [
-      //   new PolicyStatement({
-      //     effect: iam.Effect.ALLOW, 
-      //     actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
-      //     resources: ['*'],
-      //   }),
-      //   new PolicyStatement({
-      //     effect: iam.Effect.ALLOW, 
-      //     actions: ['lambda:InvokeFunction'], 
-      //     resources: ['*']
-      //   })
-      // ],
-      // environment: {
-      //   CurrentVersion: version.toString()
-      // }
+      initialPolicy: [
+        new PolicyStatement({
+          effect: iam.Effect.ALLOW, 
+          actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
+          resources: ['*'],
+        }),
+        new PolicyStatement({
+          effect: iam.Effect.ALLOW, 
+          actions: ['lambda:InvokeFunction'], 
+          resources: ['*']
+        })
+      ],
+      environment: {
+        CurrentVersion: version.toString()
+      }
     });
 
     new api.LambdaRestApi(this, 'LambdaRestApi', {
