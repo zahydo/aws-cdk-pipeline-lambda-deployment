@@ -51,13 +51,6 @@ export class LambdaStack extends Stack {
       }
     });
 
-    const alarm = new cloudwatch.Alarm(this, 'LambdaAlarm', {
-      evaluationPeriods: 1,
-      threshold: 1,
-      metric: func.metricErrors(),
-      alarmName: 'alarm_in_pipeline'
-    });
-
     new api.LambdaRestApi(this, 'LambdaRestApi', {
       handler: func
     });
@@ -66,8 +59,7 @@ export class LambdaStack extends Stack {
       alias: alias,
       deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
       deploymentGroupName: 'LambdaDeploymentGroup',
-      preHook: preHook,
-      alarms: [alarm],
+      //preHook: preHook,
     });
   }
 }
