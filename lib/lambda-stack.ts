@@ -28,10 +28,11 @@ export class LambdaStack extends Stack {
       functionName: 'prehook_in_pipeline',
     });
 
-    const alarm = new cloudwatch.Alarm(this, '', {
+    const alarm = new cloudwatch.Alarm(this, 'Alarm_lambda', {
       evaluationPeriods: 1,
       threshold: 1,
-      metric: func.metricErrors()
+      metric: func.metricErrors(),
+      alarmName: 'alarm_in_pipeline'
     });
     
     const version = func.addVersion(new Date().toISOString());
