@@ -38,7 +38,7 @@ export class LambdaStack extends Stack {
         new PolicyStatement({
           effect: iam.Effect.ALLOW, 
           actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
-          resources: ['*']
+          resources: ['*'],
         }),
         new PolicyStatement({
           effect: iam.Effect.ALLOW, 
@@ -51,7 +51,7 @@ export class LambdaStack extends Stack {
       }
     });
 
-    const alarm = new cloudwatch.Alarm(this, 'Alarm_lambda', {
+    const alarm = new cloudwatch.Alarm(this, 'LambdaAlarm', {
       evaluationPeriods: 1,
       threshold: 1,
       metric: func.metricErrors(),
