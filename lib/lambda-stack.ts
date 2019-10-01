@@ -35,6 +35,9 @@ export class LambdaStack extends Stack {
       handler: 'prehook.handler',
       runtime: lambda.Runtime.NODEJS_8_10,
       functionName: 'prehook_in_pipeline',
+      environment: {
+        CurrentVersion: 'prod'
+      }
     });
 
     new codedeploy.LambdaDeploymentGroup(this, 'LambdaDeploymentGroup', {
