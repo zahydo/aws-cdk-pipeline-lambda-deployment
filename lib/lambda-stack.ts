@@ -1,8 +1,7 @@
 import { App, Stack, StackProps } from '@aws-cdk/core';
 import codedeploy = require('@aws-cdk/aws-codedeploy');
 import lambda = require('@aws-cdk/aws-lambda');
-import lambda_event_sources = require('@aws-cdk/aws-lambda-event-sources');
-import api = require('@aws-cdk/aws-apigateway');
+import apigateway = require('@aws-cdk/aws-apigateway');
 import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 
 
@@ -23,9 +22,6 @@ export class LambdaStack extends Stack {
       handler: 'index.handler',
       runtime: lambda.Runtime.NODEJS_10_X,
       functionName: 'lambda_in_pipeline',
-      events: [
-        new lambda_event_sources.ApiEventSource('get','/hello')
-      ]
     });
     // Version and Alias to manage traffic shiffting
     const version = func.addVersion('3');
@@ -60,8 +56,11 @@ export class LambdaStack extends Stack {
       ]
     });
 
-    new api.RestApi(this, 'RestApi', {
-      
-    })
+    const api = new apigateway.RestApi(this, 'RestApi', {
+      restApiName: 'rest_api',
+    });
+
+    const getHelloWorld = new apigateway.LambdaIntegration(func);
+    api.root.addMethod("GET", getHelloWorld);
   }
 }
