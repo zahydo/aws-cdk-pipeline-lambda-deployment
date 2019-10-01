@@ -24,10 +24,10 @@ export class LambdaStack extends Stack {
       functionName: 'lambda_in_pipeline',
     });
     // Version and Alias to manage traffic shiffting
-    const version = func.addVersion('3');
+    const version = func.addVersion('live');
     const alias = new lambda.Alias(this, 'LambdaAlias', {
       aliasName: 'live',
-      version,
+      version: version,
     });
     // Lambda function to execute before traffic shiffting
     const preHook = new lambda.Function(this, 'PreHook', {
