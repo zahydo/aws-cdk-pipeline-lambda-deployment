@@ -2,9 +2,7 @@ import { App, Stack, StackProps } from '@aws-cdk/core';
 import codedeploy = require('@aws-cdk/aws-codedeploy');
 import lambda = require('@aws-cdk/aws-lambda');
 import api = require('@aws-cdk/aws-apigateway');
-// import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import iam = require('@aws-cdk/aws-iam');
-import { PolicyStatement } from '@aws-cdk/aws-iam';
+import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 
 
 export class LambdaStack extends Stack {
@@ -15,59 +13,47 @@ export class LambdaStack extends Stack {
     super(app, id, props);
 
     this.lambdaCode = lambda.Code.cfnParameters();
-
+    const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
+      applicationName: 'LambdaApplicationInPipeline'
+    });
+    // Main lambda Function
     const func = new lambda.Function(this, 'Lambda', {
       code: this.lambdaCode,
       handler: 'index.handler',
       runtime: lambda.Runtime.NODEJS_10_X,
       functionName: 'lambda_in_pipeline',
     });
-    
+    // Version and Alias to manage traffic shiffting
     const version = func.addVersion(new Date().toISOString());
     const alias = new lambda.Alias(this, 'LambdaAlias', {
       aliasName: 'Production',
-      version: version,
+      version
     });
-
+    // Lambda function to execute before traffic shiffting
     const preHook = new lambda.Function(this, 'PreHook', {
       code: this.lambdaCode,
       handler: 'prehook.handler',
       runtime: lambda.Runtime.NODEJS_8_10,
       functionName: 'prehook_in_pipeline',
-      // initialPolicy: [
-      //   new PolicyStatement({
-      //     effect: iam.Effect.ALLOW, 
-      //     actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
-      //     resources: ['*'],
-      //   }),
-      //   new PolicyStatement({
-      //     effect: iam.Effect.ALLOW, 
-      //     actions: ['lambda:InvokeFunction'], 
-      //     resources: ['*']
-      //   })
-      // ],
-      // environment: {
-      //   CurrentVersion: version.toString()
-      // }
     });
-
-    // preHook.addToRolePolicy(new PolicyStatement({
-    //   effect: iam.Effect.ALLOW, 
-    //   actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
-    //   resources: ['*'],
-    // }));
-    // preHook.addToRolePolicy(new PolicyStatement({
-    //   effect: iam.Effect.ALLOW, 
-    //   actions: ['lambda:InvokeFunction'], 
-    //   resources: [func.functionArn],
-    // }));
 
     new codedeploy.LambdaDeploymentGroup(this, 'DeploymentGroup', {
       alias: alias,
+      application: myApplication,
       deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
       deploymentGroupName: 'LambdaDeploymentGroup',
-      // preHook: preHook
-    }).grantPutLifecycleEventHookExecutionStatus(preHook);
+      preHook: preHook,
+      alarms: [
+        // pass some alarms when constructing the deployment group
+        new cloudwatch.Alarm(this, 'ErrorsAlarm', {
+          comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+          threshold: 1,
+          evaluationPeriods: 1,
+          metric: alias.metricErrors(),
+          alarmName: 'ErrorsAlarm'
+        })
+      ]
+    });
 
     new api.LambdaRestApi(this, 'LambdaRestApi', {
       handler: func
