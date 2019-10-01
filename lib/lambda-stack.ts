@@ -55,9 +55,5 @@ export class LambdaStack extends Stack {
         })
       ]
     });
-
-    new api.LambdaRestApi(this, 'LambdaRestApi', {
-      handler: func
-    });
   }
 }
