@@ -18,58 +18,63 @@ export class PipelineStack extends Stack {
     super(app, id, props);
 
     const code = codecommit.Repository.fromRepositoryName(this, 'ImportedRepo', 'hello-world-lambda-function');
-    
     const cdkBuild = new codebuild.PipelineProject(this, 'CdkBuild', {
       buildSpec: codebuild.BuildSpec.fromObject({
-        version: '0.2',
-        phases: {
-          install: {
-            commands: 'npm install',
+        "version": "0.2",
+        "phases": {
+          "install": {
+            "commands": [
+              "npm install"
+            ]
           },
-          build: {
-            commands: [
-              'npm run build',
-              'npm run cdk synth -- -o dist'
-            ],
-          },
+          "build": {
+            "commands": [
+              "npm run build",
+              "npm run cdk synth -- -o dist"
+            ]
+          }
         },
-        artifacts: {
-          'base-directory': 'dist',
-          files: [
-            'LambdaStack.template.json',
-          ],
-        },
+        "artifacts": {
+          "base-directory": "dist",
+          "files": [
+            "LambdaStack.template.json"
+          ]
+        }
       }),
       environment: {
         buildImage: codebuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_8_11_0,
       },
+      projectName: 'CdkBuild',
     });
     const lambdaBuild = new codebuild.PipelineProject(this, 'LambdaBuild', {
       buildSpec: codebuild.BuildSpec.fromObject({
-        version: '0.3',
-        phases: {
-          install: {
-            commands: [
-              'cd lambda',
-              'npm install',
-            ],
+        "version": "0.2",
+        "phases": {
+          "install": {
+            "commands": [
+              "cd lambda",
+              "npm install"
+            ]
           },
-          build: {
-            commands: 'npm run build',
-          },
+          "build": {
+            "commands": [
+              "npm run build"
+            ]
+          }
         },
-        artifacts: {
-          'base-directory': 'lambda',
-          files: [
-            'index.js',
-            'prehook.js',
-            'node_modules/**/*',
-          ],
-        },
+        "artifacts": {
+          "base-directory": "lambda",
+          "files": [
+            "index.js",
+            "prehook.js",
+            "node_modules/**/*"
+          ]
+        }
       }),
       environment: {
         buildImage: codebuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_8_11_0,
       },
+      projectName: 'LambdaBuild'
     });
 
     const sourceOutput = new codepipeline.Artifact();
