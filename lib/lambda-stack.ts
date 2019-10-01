@@ -14,7 +14,7 @@ export class LambdaStack extends Stack {
 
     this.lambdaCode = lambda.Code.cfnParameters();
     const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
-      applicationName: 'LambdaApplicationInPipeline'
+      applicationName: 'lambda_application_in_pipeline'
     });
     // Main lambda Function
     const func = new lambda.Function(this, 'Lambda', {
@@ -24,9 +24,9 @@ export class LambdaStack extends Stack {
       functionName: 'lambda_in_pipeline',
     });
     // Version and Alias to manage traffic shiffting
-    const version = func.addVersion(new Date().toDateString());
+    const version = func.addVersion('2');
     const alias = new lambda.Alias(this, 'LambdaAlias', {
-      aliasName: 'Production',
+      aliasName: 'prod',
       version
     });
     // Lambda function to execute before traffic shiffting
