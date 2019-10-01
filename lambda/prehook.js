@@ -26,7 +26,7 @@ exports.handler = async (event, context, callback) => {
     let params = {
         deploymentId: deploymentId,
         lifecycleEventHookExecutionId: lifecycleEventHookExecutionId,
-        status: 'Succeeded' // status can be 'Succeeded' or 'Failed'
+        status: 'Failed' // status can be 'Succeeded' or 'Failed'
     };
 
     try {
