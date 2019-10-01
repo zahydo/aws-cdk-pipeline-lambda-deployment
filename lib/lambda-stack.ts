@@ -37,11 +37,11 @@ export class LambdaStack extends Stack {
       functionName: 'prehook_in_pipeline',
     });
 
-    new codedeploy.LambdaDeploymentGroup(this, 'DeploymentGroup', {
+    new codedeploy.LambdaDeploymentGroup(this, 'LambdaDeploymentGroup', {
       alias: alias,
       application: myApplication,
       deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
-      deploymentGroupName: 'LambdaDeploymentGroup',
+      deploymentGroupName: 'Lambda_deployment_group',
       preHook: preHook,
       alarms: [
         // pass some alarms when constructing the deployment group
