@@ -24,7 +24,7 @@ export class LambdaStack extends Stack {
       functionName: 'lambda_in_pipeline',
     });
     // Version and Alias to manage traffic shiffting
-    const version = func.addVersion(new Date().toISOString());
+    const version = func.addVersion(new Date().toDateString());
     const alias = new lambda.Alias(this, 'LambdaAlias', {
       aliasName: 'Production',
       version
