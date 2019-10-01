@@ -51,23 +51,23 @@ export class LambdaStack extends Stack {
       // }
     });
 
-    preHook.addToRolePolicy(new PolicyStatement({
-      effect: iam.Effect.ALLOW, 
-      actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
-      resources: ['*'],
-    }));
-    preHook.addToRolePolicy(new PolicyStatement({
-      effect: iam.Effect.ALLOW, 
-      actions: ['lambda:InvokeFunction'], 
-      resources: [func.functionArn],
-    }));
+    // preHook.addToRolePolicy(new PolicyStatement({
+    //   effect: iam.Effect.ALLOW, 
+    //   actions: ['codedeploy:PutLifecycleEventHookExecutionStatus'], 
+    //   resources: ['*'],
+    // }));
+    // preHook.addToRolePolicy(new PolicyStatement({
+    //   effect: iam.Effect.ALLOW, 
+    //   actions: ['lambda:InvokeFunction'], 
+    //   resources: [func.functionArn],
+    // }));
 
     new codedeploy.LambdaDeploymentGroup(this, 'DeploymentGroup', {
       alias: alias,
       deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
       deploymentGroupName: 'LambdaDeploymentGroup',
-      preHook: preHook,
-    });
+      // preHook: preHook
+    }).grantPutLifecycleEventHookExecutionStatus(preHook);
 
     new api.LambdaRestApi(this, 'LambdaRestApi', {
       handler: func
