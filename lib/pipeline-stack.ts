@@ -46,7 +46,7 @@ export class PipelineStack extends Stack {
     });
     const lambdaBuild = new codebuild.PipelineProject(this, 'LambdaBuild', {
       buildSpec: codebuild.BuildSpec.fromObject({
-        version: '0.2',
+        version: '0.3',
         phases: {
           install: {
             commands: [
