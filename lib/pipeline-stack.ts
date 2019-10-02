@@ -42,7 +42,7 @@ export class PipelineStack extends Stack {
         }
       }),
       environment: {
-        buildImage: codebuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_8_11_0,
+        buildImage: codebuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0,
       },
       projectName: 'CdkBuild',
     });
@@ -72,7 +72,7 @@ export class PipelineStack extends Stack {
         }
       }),
       environment: {
-        buildImage: codebuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_8_11_0,
+        buildImage: codebuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0,
       },
       projectName: 'LambdaBuild'
     });
