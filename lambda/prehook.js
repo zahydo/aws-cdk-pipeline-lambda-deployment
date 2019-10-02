@@ -17,8 +17,9 @@ exports.handler = async (event, context, callback) => {
     let lifecycleEventHookExecutionId = event.LifecycleEventHookExecutionId;
     console.log("lifecycleEventHookExecutionId=" + lifecycleEventHookExecutionId);
 
+    // Simulating running a unit test
     for (let index = 0; index < 10; index++) {
-      console.log("Unit test: " + index);
+      console.log("Simulating running a unit test: " + index);
     }
 
     // Prepare the validation test results with the deploymentId and
@@ -31,12 +32,14 @@ exports.handler = async (event, context, callback) => {
 
     try {
       await codedeploy.putLifecycleEventHookExecutionStatus(params).promise();
+
+      // This code is executed if the status is "succeeded".
       console.log("putLifecycleEventHookExecutionStatus done. executionStatus=[" + params.status + "]");
-      return 'Validation unit test succeeded'
+      return '(Simulated) Validation unit test status was: ' + params.status
     }
     catch (err) {
       console.log("putLifecycleEventHookExecutionStatus ERROR: " + err);
-      throw new Error('Validation unit test failed')
+      throw new Error('(Simulated) Validation unit test failed')
     }
 
 }
