@@ -28,7 +28,6 @@ export class LambdaStack extends Stack {
     const alias = new lambda.Alias(this, 'LambdaAlias', {
       aliasName: 'prod',
       version: version,
-      additionalVersions: [{version: func.addVersion('4'), weight: 0.05}]
     });
     // Lambda function to execute before traffic shiffting
     const preHook = new lambda.Function(this, 'PreHook', {
