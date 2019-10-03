@@ -63,8 +63,17 @@ export class LambdaStack extends Stack {
     // ApiGateway to test lambda function
     const api = new apigateway.RestApi(this, 'RestApi', {
       restApiName: 'lambda_rest_api',
+      deploy: false
     });
     const getLambdaIntegration = new apigateway.LambdaIntegration(handler);
     api.root.addMethod("GET", getLambdaIntegration);
+    
+    new apigateway.CfnDeployment(this, 'ApiDeployment', {
+      stageName: 'prod',
+      restApiId: api.restApiId,
+      deploymentCanarySettings: {
+        percentTraffic: 0.10
+      }
+    })
   }
 }
