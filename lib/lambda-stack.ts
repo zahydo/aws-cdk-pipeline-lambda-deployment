@@ -25,11 +25,9 @@ export class LambdaStack extends Stack {
     });
     // Version and Alias to manage traffic shiffting
     const version = handler.addVersion(lambdaVersion.toString());
-    const versionUp = handler.addVersion((lambdaVersion + 1).toString());
     const alias = new lambda.Alias(this, 'LambdaAlias', {
       aliasName: aliasName,
       version: version,
-      additionalVersions: [{ version: versionUp, weight: 0.05 }]
     });
     // Lambda function to execute before traffic shiffting
     const preHook = new lambda.Function(this, 'PreHook', {
@@ -64,7 +62,7 @@ export class LambdaStack extends Stack {
       restApiName: 'lambda_rest_api',
       retainDeployments: true,
     });
-    const getLambdaIntegration = new apigateway.LambdaIntegration(alias.latestVersion.lambda);
+    const getLambdaIntegration = new apigateway.LambdaIntegration(alias);
     api.root.addMethod("GET", getLambdaIntegration);
   }
 }
