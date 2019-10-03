@@ -10,7 +10,7 @@ exports.handler = async (event, context) => {
       context.done('error', error);
     }
     if(data.Payload){
-    context.succeed(data.Payload)
+      context.succeed(data.Payload);
     }
   });
 }

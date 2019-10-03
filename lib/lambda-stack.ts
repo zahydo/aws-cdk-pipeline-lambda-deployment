@@ -17,7 +17,7 @@ export class LambdaStack extends Stack {
       applicationName: 'lambda_application_in_pipeline'
     });
     // Proxy lambda Function
-    const proxy = new lambda.Function(this, 'Lambda', {
+    const proxy = new lambda.Function(this, 'Proxy', {
       code: lambda.Code.asset('lambda'),
       handler: 'proxy.handler',
       runtime: lambda.Runtime.NODEJS_10_X,
