@@ -65,7 +65,7 @@ export class LambdaStack extends Stack {
       restApiName: 'rest_api',
       deploy: true,
       deployOptions: {
-        stageName: version.toString()
+        stageName: 'prod'
       },
       handler: func
     });
