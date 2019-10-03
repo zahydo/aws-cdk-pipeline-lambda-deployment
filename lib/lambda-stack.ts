@@ -12,7 +12,7 @@ export class LambdaStack extends Stack {
   public readonly lambdaCode: lambda.CfnParametersCode;
   constructor(app: App, id: string, props?: StackProps) {
     super(app, id, props);
-
+    let lambdaVersion = '4', aliasName = 'prod';
     // These parameters come from the PipelineDeploymentStack
     this.lambdaCode = lambda.Code.cfnParameters();
     const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
@@ -26,9 +26,9 @@ export class LambdaStack extends Stack {
       functionName: 'lambda_in_pipeline',
     });
     // Version and Alias to manage traffic shiffting
-    const version = func.addVersion('4');
+    const version = func.addVersion(lambdaVersion);
     const alias = new lambda.Alias(this, 'LambdaAlias', {
-      aliasName: 'prod',
+      aliasName: aliasName,
       version: version,
     });
     // Lambda function to execute before traffic shiffting
@@ -65,7 +65,10 @@ export class LambdaStack extends Stack {
       restApiName: 'rest_api',
       deploy: true,
       deployOptions: {
-        stageName: 'prod'
+        stageName: aliasName,
+        variables: {
+          lambdaAlias: aliasName
+        }
       },
       handler: func
     });
