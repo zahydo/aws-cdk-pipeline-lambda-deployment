@@ -16,6 +16,13 @@ export class LambdaStack extends Stack {
     const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
       applicationName: 'lambda_application_in_pipeline'
     });
+    // Proxy lambda Function
+    const proxy = new lambda.Function(this, 'Lambda', {
+      code: lambda.Code.asset('lambda'),
+      handler: 'proxy.handler',
+      runtime: lambda.Runtime.NODEJS_10_X,
+      functionName: 'proxy_in_pipeline',
+    });
     // Main lambda Function
     const handler = new lambda.Function(this, 'Lambda', {
       code: this.lambdaCode,
@@ -62,7 +69,7 @@ export class LambdaStack extends Stack {
       restApiName: 'lambda_rest_api',
       retainDeployments: true,
     });
-    const getLambdaIntegration = new apigateway.LambdaIntegration(handler);
+    const getLambdaIntegration = new apigateway.LambdaIntegration(proxy);
     api.root.addMethod("GET", getLambdaIntegration);
   }
 }
