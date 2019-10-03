@@ -62,8 +62,20 @@ export class LambdaStack extends Stack {
 
     // ApiGateway to test lambda traffic shifting
     const api = new apigateway.RestApi(this, 'RestApi', {
-      restApiName: 'lambda_rest_api'
-    })
+      restApiName: 'lambda_rest_api',
+      deployOptions: {
+        stageName: 'Stage',
+      },
+      deploy: false,
+    });
+    const apiDeployment = new apigateway.Deployment(this, 'ApiDeployment', {
+      api,
+      retainDeployments: true
+    });
+    new apigateway.Stage(this, 'ApiStage', {
+      deployment: apiDeployment,
+      stageName: 'Prod'
+    });
     const getLambdaIntegration = new apigateway.LambdaIntegration(func);
     api.root.addMethod("GET", getLambdaIntegration);
   }
