@@ -3,6 +3,7 @@ import codedeploy = require('@aws-cdk/aws-codedeploy');
 import lambda = require('@aws-cdk/aws-lambda');
 import apigateway = require('@aws-cdk/aws-apigateway');
 import cloudwatch = require('@aws-cdk/aws-cloudwatch');
+import { LambdaRestApi } from '@aws-cdk/aws-apigateway';
 
 
 export class LambdaStack extends Stack {
@@ -12,6 +13,7 @@ export class LambdaStack extends Stack {
   constructor(app: App, id: string, props?: StackProps) {
     super(app, id, props);
 
+    // These parameters come from the PipelineDeploymentStack
     this.lambdaCode = lambda.Code.cfnParameters();
     const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
       applicationName: 'lambda_application_in_pipeline'
@@ -24,7 +26,7 @@ export class LambdaStack extends Stack {
       functionName: 'lambda_in_pipeline',
     });
     // Version and Alias to manage traffic shiffting
-    const version = func.addVersion('3');
+    const version = func.addVersion('4');
     const alias = new lambda.Alias(this, 'LambdaAlias', {
       aliasName: 'prod',
       version: version,
@@ -39,7 +41,7 @@ export class LambdaStack extends Stack {
         CurrentVersion: version.toString()
       }
     });
-
+    // LamdaDeploymentGroup to manage the deployment type (Blue/Green), put alarms and run pre and post hooks functions
     new codedeploy.LambdaDeploymentGroup(this, 'LambdaDeploymentGroup', {
       alias: alias,
       application: myApplication,
@@ -53,16 +55,19 @@ export class LambdaStack extends Stack {
           threshold: 1,
           evaluationPeriods: 1,
           metric: alias.metricErrors(),
-          alarmName: 'ErrorsAlarm'
+          alarmName: 'errors_alarm_in_pipeline'
         })
       ]
     });
 
-    const api = new apigateway.RestApi(this, 'RestApi', {
+    // ApiGateway to test lambda traffic shifting
+    new apigateway.LambdaRestApi(this, 'RestApi', {
       restApiName: 'rest_api',
+      deploy: true,
+      deployOptions: {
+        stageName: version.toString()
+      },
+      handler: func
     });
-
-    const getHelloWorld = new apigateway.LambdaIntegration(func);
-    api.root.addMethod("GET", getHelloWorld);
   }
 }

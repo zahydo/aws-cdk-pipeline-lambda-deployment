@@ -17,7 +17,9 @@ export class PipelineStack extends Stack {
   constructor(app: App, id: string, props: PipelineStackProps) {
     super(app, id, props);
 
+    // Downloaded code from codecommit repository by the name
     const code = codecommit.Repository.fromRepositoryName(this, 'ImportedRepo', 'hello-world-lambda-function');
+    // CodeBuild projects to run node and CDK commands, when the code change in the pipeline
     const cdkBuild = new codebuild.PipelineProject(this, 'CdkBuild', {
       buildSpec: codebuild.BuildSpec.fromObject({
         "version": "0.2",
@@ -76,11 +78,11 @@ export class PipelineStack extends Stack {
       },
       projectName: 'LambdaBuild'
     });
-
+    // Artifacts to execute the different Pipeline stages
     const sourceOutput = new codepipeline.Artifact();
     const cdkBuildOutput = new codepipeline.Artifact('CdkBuildOutput');
     const lambdaBuildOutput = new codepipeline.Artifact('LambdaBuildOutput');
-
+    // Pipeline to deploy any change in the CDK and Lambda code
     new codepipeline.Pipeline(this, 'Pipeline', {
       pipelineName: 'PipelineLambdaDeploymentSample',
       artifactBucket: new s3.Bucket(this, 'PipelineBucket', {bucketName: 'aws-bucket-for-pipeline-lambda-sample'}),
@@ -116,7 +118,7 @@ export class PipelineStack extends Stack {
           stageName: 'Deploy',
           actions: [
             new codepipeline_actions.CloudFormationCreateUpdateStackAction({
-              actionName: 'Lambda_CFN_Deploy',
+              actionName: 'Lambda_Deploy',
               templatePath: cdkBuildOutput.atPath('LambdaStack.template.json'),
               stackName: 'LambdaDeploymentStack',
               adminPermissions: true,
