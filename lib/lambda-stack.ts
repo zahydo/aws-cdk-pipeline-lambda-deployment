@@ -19,17 +19,17 @@ export class LambdaStack extends Stack {
       applicationName: 'lambda_application_in_pipeline'
     });
     // Main lambda Function
-    const func = new lambda.Function(this, 'Lambda', {
+    const handler = new lambda.Function(this, 'Lambda', {
       code: this.lambdaCode,
       handler: 'index.handler',
       runtime: lambda.Runtime.NODEJS_10_X,
       functionName: 'lambda_in_pipeline',
     });
     // Version and Alias to manage traffic shiffting
-    const version = func.addVersion(lambdaVersion);
+    const version = handler.addVersion(lambdaVersion);
     const alias = new lambda.Alias(this, 'LambdaAlias', {
       aliasName: aliasName,
-      version: version,
+      version
     });
     // Lambda function to execute before traffic shiffting
     const preHook = new lambda.Function(this, 'PreHook', {
@@ -43,7 +43,7 @@ export class LambdaStack extends Stack {
     });
     // LamdaDeploymentGroup to manage the deployment type (Blue/Green), put alarms and run pre and post hooks functions
     new codedeploy.LambdaDeploymentGroup(this, 'LambdaDeploymentGroup', {
-      alias: alias,
+      alias,
       application: myApplication,
       deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
       deploymentGroupName: 'Lambda_deployment_group',
@@ -64,7 +64,7 @@ export class LambdaStack extends Stack {
     const api = new apigateway.RestApi(this, 'RestApi', {
       restApiName: 'lambda_rest_api',
     });
-    const getLambdaIntegration = new apigateway.LambdaIntegration(alias);
+    const getLambdaIntegration = new apigateway.LambdaIntegration(alias.lambda);
     api.root.addMethod("GET", getLambdaIntegration);
   }
 }

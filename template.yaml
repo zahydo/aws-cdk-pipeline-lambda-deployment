@@ -1,0 +1,444 @@
+Resources:
+  LambdaApplication668F2836:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: lambda_application_in_pipeline
+      ComputePlatform: Lambda
+    Metadata:
+      aws:cdk:path: LambdaStack/LambdaApplication/Resource
+  LambdaServiceRoleA8ED4D3B:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: LambdaStack/Lambda/ServiceRole/Resource
+  LambdaD247545B:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: LambdaLambdaSourceBucketNameParameter159473FC
+        S3Key:
+          Ref: LambdaLambdaSourceObjectKeyParameter06573F1D
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - LambdaServiceRoleA8ED4D3B
+          - Arn
+      Runtime: nodejs10.x
+      FunctionName: lambda_in_pipeline
+    DependsOn:
+      - LambdaServiceRoleA8ED4D3B
+    Metadata:
+      aws:cdk:path: LambdaStack/Lambda/Resource
+  LambdaVersion6998C80C3:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName:
+        Ref: LambdaD247545B
+    Metadata:
+      aws:cdk:path: LambdaStack/Lambda/Version6/Resource
+  LambdaAlias9C15A666:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName:
+        Ref: LambdaD247545B
+      FunctionVersion:
+        Fn::GetAtt:
+          - LambdaVersion6998C80C3
+          - Version
+      Name: prod
+    UpdatePolicy:
+      CodeDeployLambdaAliasUpdate:
+        ApplicationName:
+          Ref: LambdaApplication668F2836
+        DeploymentGroupName:
+          Ref: LambdaDeploymentGroupB4CA6ACC
+        BeforeAllowTrafficHook:
+          Ref: PreHook8B53F672
+    Metadata:
+      aws:cdk:path: LambdaStack/LambdaAlias/Resource
+  PreHookServiceRoleC724B9BA:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: LambdaStack/PreHook/ServiceRole/Resource
+  PreHookServiceRoleDefaultPolicy65358F76:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: codedeploy:PutLifecycleEventHookExecutionStatus
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - ":codedeploy:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - ":deploymentgroup:"
+                  - Ref: LambdaApplication668F2836
+                  - /
+                  - Ref: LambdaDeploymentGroupB4CA6ACC
+        Version: "2012-10-17"
+      PolicyName: PreHookServiceRoleDefaultPolicy65358F76
+      Roles:
+        - Ref: PreHookServiceRoleC724B9BA
+    Metadata:
+      aws:cdk:path: LambdaStack/PreHook/ServiceRole/DefaultPolicy/Resource
+  PreHook8B53F672:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: LambdaLambdaSourceBucketNameParameter159473FC
+        S3Key:
+          Ref: LambdaLambdaSourceObjectKeyParameter06573F1D
+      Handler: prehook.handler
+      Role:
+        Fn::GetAtt:
+          - PreHookServiceRoleC724B9BA
+          - Arn
+      Runtime: nodejs8.10
+      Environment:
+        Variables:
+          CurrentVersion: LambdaStack/Lambda/Version6
+      FunctionName: prehook_in_pipeline
+    DependsOn:
+      - PreHookServiceRoleDefaultPolicy65358F76
+      - PreHookServiceRoleC724B9BA
+    Metadata:
+      aws:cdk:path: LambdaStack/PreHook/Resource
+  ErrorsAlarm39B3548B:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      AlarmName: errors_alarm_in_pipeline
+      Dimensions:
+        - Name: FunctionName
+          Value:
+            Ref: LambdaD247545B
+        - Name: Resource
+          Value:
+            Fn::Join:
+              - ""
+              - - Ref: LambdaD247545B
+                - :prod
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 300
+      Statistic: Sum
+      Threshold: 1
+    Metadata:
+      aws:cdk:path: LambdaStack/ErrorsAlarm/Resource
+  LambdaDeploymentGroupServiceRole847223AA:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                Fn::Join:
+                  - ""
+                  - - codedeploy.
+                    - Ref: AWS::Region
+                    - "."
+                    - Ref: AWS::URLSuffix
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSCodeDeployRoleForLambda
+    Metadata:
+      aws:cdk:path: LambdaStack/LambdaDeploymentGroup/ServiceRole/Resource
+  LambdaDeploymentGroupServiceRoleDefaultPolicy00EBB576:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: lambda:InvokeFunction
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PreHook8B53F672
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: LambdaDeploymentGroupServiceRoleDefaultPolicy00EBB576
+      Roles:
+        - Ref: LambdaDeploymentGroupServiceRole847223AA
+    Metadata:
+      aws:cdk:path: LambdaStack/LambdaDeploymentGroup/ServiceRole/DefaultPolicy/Resource
+  LambdaDeploymentGroupB4CA6ACC:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName:
+        Ref: LambdaApplication668F2836
+      ServiceRoleArn:
+        Fn::GetAtt:
+          - LambdaDeploymentGroupServiceRole847223AA
+          - Arn
+      AlarmConfiguration:
+        Alarms:
+          - Name:
+              Ref: ErrorsAlarm39B3548B
+        Enabled: true
+      AutoRollbackConfiguration:
+        Enabled: true
+        Events:
+          - DEPLOYMENT_FAILURE
+          - DEPLOYMENT_STOP_ON_ALARM
+      DeploymentConfigName: CodeDeployDefault.LambdaCanary10Percent5Minutes
+      DeploymentGroupName: Lambda_deployment_group
+      DeploymentStyle:
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+        DeploymentType: BLUE_GREEN
+    Metadata:
+      aws:cdk:path: LambdaStack/LambdaDeploymentGroup/Resource
+  RestApi0C43BF4B:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: lambda_rest_api
+    Metadata:
+      aws:cdk:path: LambdaStack/RestApi/Resource
+  RestApiDeployment180EC5031a014081064fb02f294dfdb193f6639f:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: RestApi0C43BF4B
+      Description: Automatically created by the RestApi construct
+    DependsOn:
+      - RestApiGET0F59260B
+    Metadata:
+      aws:cdk:path: LambdaStack/RestApi/Deployment/Resource
+  RestApiDeploymentStageprod3855DE66:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: RestApi0C43BF4B
+      DeploymentId:
+        Ref: RestApiDeployment180EC5031a014081064fb02f294dfdb193f6639f
+      StageName: prod
+    Metadata:
+      aws:cdk:path: LambdaStack/RestApi/DeploymentStage.prod/Resource
+  RestApiCloudWatchRoleE3ED6605:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+    Metadata:
+      aws:cdk:path: LambdaStack/RestApi/CloudWatchRole/Resource
+  RestApiAccount7C83CF5A:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - RestApiCloudWatchRoleE3ED6605
+          - Arn
+    DependsOn:
+      - RestApi0C43BF4B
+    Metadata:
+      aws:cdk:path: LambdaStack/RestApi/Account
+  RestApiGETApiPermissionLambdaStackRestApiF9BBCED9GET1F6DBA61:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: LambdaAlias9C15A666
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: RestApi0C43BF4B
+            - /
+            - Ref: RestApiDeploymentStageprod3855DE66
+            - /GET/
+    Metadata:
+      aws:cdk:path: LambdaStack/RestApi/Default/GET/ApiPermission.LambdaStackRestApiF9BBCED9.GET..
+  RestApiGETApiPermissionTestLambdaStackRestApiF9BBCED9GET802B8F30:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: LambdaAlias9C15A666
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: RestApi0C43BF4B
+            - /test-invoke-stage/GET/
+    Metadata:
+      aws:cdk:path: LambdaStack/RestApi/Default/GET/ApiPermission.Test.LambdaStackRestApiF9BBCED9.GET..
+  RestApiGET0F59260B:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Fn::GetAtt:
+          - RestApi0C43BF4B
+          - RootResourceId
+      RestApiId:
+        Ref: RestApi0C43BF4B
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Ref: LambdaAlias9C15A666
+              - /invocations
+    Metadata:
+      aws:cdk:path: LambdaStack/RestApi/Default/GET/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=1.10.1,@aws-cdk/assets=1.10.1,@aws-cdk/aws-apigateway=1.10.1,@aws-cdk/aws-applicationautoscaling=1.10.1,@aws-cdk/aws-autoscaling=1.10.1,@aws-cdk/aws-autoscaling-common=1.10.1,@aws-cdk/aws-autoscaling-hooktargets=1.10.1,@aws-cdk/aws-cloudformation=1.10.1,@aws-cdk/aws-cloudwatch=1.10.1,@aws-cdk/aws-codebuild=1.10.1,@aws-cdk/aws-codecommit=1.10.1,@aws-cdk/aws-codedeploy=1.10.1,@aws-cdk/aws-codepipeline=1.10.1,@aws-cdk/aws-codepipeline-actions=1.10.1,@aws-cdk/aws-ec2=1.10.1,@aws-cdk/aws-ecr=1.10.1,@aws-cdk/aws-ecr-assets=1.10.1,@aws-cdk/aws-ecs=1.10.1,@aws-cdk/aws-elasticloadbalancingv2=1.10.1,@aws-cdk/aws-events=1.10.1,@aws-cdk/aws-events-targets=1.10.1,@aws-cdk/aws-iam=1.10.1,@aws-cdk/aws-kms=1.10.1,@aws-cdk/aws-lambda=1.10.1,@aws-cdk/aws-logs=1.10.1,@aws-cdk/aws-s3=1.10.1,@aws-cdk/aws-s3-assets=1.10.1,@aws-cdk/aws-servicediscovery=1.10.1,@aws-cdk/aws-sns=1.10.1,@aws-cdk/aws-sns-subscriptions=1.10.1,@aws-cdk/aws-sqs=1.10.1,@aws-cdk/aws-ssm=1.10.1,@aws-cdk/core=1.10.1,@aws-cdk/cx-api=1.10.1,@aws-cdk/region-info=1.10.1,jsii-runtime=node.js/v8.12.0
+    Condition: CDKMetadataAvailable
+Parameters:
+  LambdaLambdaSourceBucketNameParameter159473FC:
+    Type: String
+  LambdaLambdaSourceObjectKeyParameter06573F1D:
+    Type: String
+Outputs:
+  RestApiEndpoint0551178A:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: RestApi0C43BF4B
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: RestApiDeploymentStageprod3855DE66
+          - /
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+
