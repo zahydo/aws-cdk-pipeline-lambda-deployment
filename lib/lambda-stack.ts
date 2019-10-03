@@ -10,7 +10,7 @@ export class LambdaStack extends Stack {
   public readonly lambdaCode: lambda.CfnParametersCode;
   constructor(app: App, id: string, props?: StackProps) {
     super(app, id, props);
-    let lambdaVersion = 10, aliasName = 'prod';
+    let lambdaVersion = 11, aliasName = 'prod';
     // These parameters come from the PipelineDeploymentStack
     this.lambdaCode = lambda.Code.cfnParameters();
     const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
@@ -50,7 +50,7 @@ export class LambdaStack extends Stack {
         // pass some alarms when constructing the deployment group
         new cloudwatch.Alarm(this, 'ErrorsAlarm', {
           comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
-          threshold: 1,
+          threshold: 6,
           evaluationPeriods: 1,
           metric: alias.metricErrors(),
           alarmName: 'errors_alarm_in_pipeline'
