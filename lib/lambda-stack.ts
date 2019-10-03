@@ -65,14 +65,16 @@ export class LambdaStack extends Stack {
       restApiName: 'lambda_rest_api',
       deployOptions: {
         stageName: 'Stage',
+        tracingEnabled: true,
+        loggingLevel: apigateway.MethodLoggingLevel.INFO
       },
     });
-    const apiDeployment = new apigateway.Deployment(this, 'ApiDeployment', {
-      api,
-      retainDeployments: true
-    });
+    // Another Stage to test traffic shifting
     new apigateway.Stage(this, 'ApiStage', {
-      deployment: apiDeployment,
+      deployment: new apigateway.Deployment(this, 'ApiDeployment', {
+        api,
+        retainDeployments: true
+      }),
       stageName: 'Prod'
     });
     const getLambdaIntegration = new apigateway.LambdaIntegration(func);
