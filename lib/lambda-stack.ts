@@ -66,7 +66,6 @@ export class LambdaStack extends Stack {
       deployOptions: {
         stageName: 'Stage',
       },
-      deploy: false,
     });
     const apiDeployment = new apigateway.Deployment(this, 'ApiDeployment', {
       api,
