@@ -14,7 +14,7 @@ export class LambdaStack extends Stack {
     // These parameters come from the PipelineDeploymentStack
     this.lambdaCode = lambda.Code.cfnParameters();
     const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
-      applicationName: 'lambda_application_in_pipeline'
+      applicationName: 'application_in_pipeline'
     });
     // Proxy lambda Function
     const proxy = new lambda.Function(this, 'Proxy', {
