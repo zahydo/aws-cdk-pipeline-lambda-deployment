@@ -12,7 +12,7 @@ export class LambdaStack extends Stack {
   public readonly lambdaCode: lambda.CfnParametersCode;
   constructor(app: App, id: string, props?: StackProps) {
     super(app, id, props);
-    let lambdaVersion = '4', aliasName = 'prod';
+    let lambdaVersion = '5', aliasName = 'prod';
     // These parameters come from the PipelineDeploymentStack
     this.lambdaCode = lambda.Code.cfnParameters();
     const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
