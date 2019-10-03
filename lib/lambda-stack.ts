@@ -63,16 +63,15 @@ export class LambdaStack extends Stack {
     // ApiGateway to test lambda function
     const api = new apigateway.LambdaRestApi(this, 'RestApi', {
       restApiName: 'lambda_rest_api',
-      deploy: false,
-      handler
+      handler: handler
     });
 
     new apigateway.CfnDeployment(this, 'ApiDeployment', {
       stageName: 'prod',
       restApiId: api.restApiId,
       deploymentCanarySettings: {
-        percentTraffic: 0.10
-      }
+        percentTraffic: 0.10,
+      },
     })
   }
 }
