@@ -11,18 +11,34 @@
  *
  */
 exports.handler = async (event, context) => {
-  let response;
-  try {
-    response = {
-      'statusCode': 201,
-      'body': JSON.stringify({
-        message: 'hello world, this is the fourth version  ' + event.headers.Host,
-        version: '11'
-      })
+  var aws = require('aws-sdk');
+  var lambda = new aws.Lambda({
+    region: 'us-west-2' //change to your region
+  });
+
+  lambda.invoke({
+    FunctionName: 'name_of_your_lambda_function',
+    Payload: JSON.stringify(event, null, 2) // pass params
+  }, function(error, data) {
+    if (error) {
+      context.done('error', error);
     }
-  } catch (err) {
-    console.log(err);
-    return err;
-  }
-  return response
+    if(data.Payload){
+    context.succeed(data.Payload)
+    }
+  });
+  // let response;
+  // try {
+  //   response = {
+  //     'statusCode': 201,
+  //     'body': JSON.stringify({
+  //       message: 'hello world, this is the fourth version  ' + event.headers.Host,
+  //       version: '11'
+  //     })
+  //   }
+  // } catch (err) {
+  //   console.log(err);
+  //   return err;
+  // }
+  // return response
 };
