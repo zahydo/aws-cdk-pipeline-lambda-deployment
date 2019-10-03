@@ -3,8 +3,6 @@ import codedeploy = require('@aws-cdk/aws-codedeploy');
 import lambda = require('@aws-cdk/aws-lambda');
 import apigateway = require('@aws-cdk/aws-apigateway');
 import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import { LambdaRestApi } from '@aws-cdk/aws-apigateway';
-
 
 export class LambdaStack extends Stack {
   // This property represents the code that is supplied later by the pipeline. 
@@ -59,15 +57,13 @@ export class LambdaStack extends Stack {
         })
       ]
     });
-
     // ApiGateway to test lambda function
     const api = new apigateway.LambdaRestApi(this, 'RestApi', {
       restApiName: 'lambda_rest_api',
       handler: handler
     });
-
     new apigateway.CfnDeployment(this, 'ApiDeployment', {
-      stageName: 'prod',
+      stageName: 'dev',
       restApiId: api.restApiId,
       deploymentCanarySettings: {
         percentTraffic: 0.10,
