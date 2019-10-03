@@ -58,16 +58,21 @@ export class LambdaStack extends Stack {
       ]
     });
     // ApiGateway to test lambda function
-    const api = new apigateway.LambdaRestApi(this, 'RestApi', {
+    const api = new apigateway.RestApi(this, 'RestApi', {
       restApiName: 'lambda_rest_api',
-      handler: handler
+      retainDeployments: true,
+      deploy: false
     });
+    const getLambdaIntegration = new apigateway.LambdaIntegration(handler);
+    api.root.addMethod("GET", getLambdaIntegration);
+
+    const cfnApi = api.node.defaultChild as apigateway.CfnRestApi;
     new apigateway.CfnDeployment(this, 'ApiDeployment', {
       stageName: 'dev',
-      restApiId: api.restApiId,
-      deploymentCanarySettings: {
-        percentTraffic: 0.10,
-      },
+      restApiId: cfnApi.logicalId,
+      stageDescription: {
+        canarySetting: {percentTraffic: 0.10}
+      }
     })
   }
 }
