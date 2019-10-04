@@ -1,5 +1,8 @@
+// @ts-check
+'use strict';
+
 var aws = require('aws-sdk');
-var lambda = new aws.Lambda({ region: 'us-west-2' });
+var lambda = new aws.Lambda({ region: 'sa-east-1' });
 
 exports.handler = async (event, context) => {
   lambda.invoke({
