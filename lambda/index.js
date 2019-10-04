@@ -16,7 +16,7 @@ exports.handler = async (event, context) => {
     response = {
       'statusCode': 201,
       'body': {
-        message: 'hello world, this is the fourth version  ' + event.headers.Host,
+        message: 'hello world, this is the fourth version  ',
         version: 11
       }
     }
