@@ -14,7 +14,8 @@ exports.handler = (event, context, callback) => {
       callback(err);
     }
     if(data.Payload){
-      callback(null, data.Payload);
+      var response = data.Payload.toString().replace(/\"/g, "'").replace(/\"/g, "'").replace(/\\'/g, "'").replace(/\'{/g, "{").replace(/\}'/g, "}")
+      callback(null, response);
     }
   });
 }

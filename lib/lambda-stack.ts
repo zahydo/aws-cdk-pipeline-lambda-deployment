@@ -70,7 +70,7 @@ export class LambdaStack extends Stack {
       restApiName: 'lambda_rest_api',
       retainDeployments: true,
     });
-    const getLambdaIntegration = new apigateway.LambdaIntegration(proxy);
+    const getLambdaIntegration = new apigateway.LambdaIntegration(handler);
     api.root.addMethod("GET", getLambdaIntegration);
   }
 }
