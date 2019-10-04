@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
       'statusCode': 201,
       'body': JSON.stringify({
         message: 'hello world, this is the fourth version  ',
-        version: 11
+        version: 12
       })
     }
   } catch (err) {
