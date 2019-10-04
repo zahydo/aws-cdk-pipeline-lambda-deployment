@@ -15,10 +15,10 @@ exports.handler = async (event, context) => {
   try {
     response = {
       'statusCode': 201,
-      'body': JSON.stringify({
+      'body': {
         message: 'hello world, this is the fourth version  ' + event.headers.Host,
-        version: '11'
-      })
+        version: 11
+      }
     }
   } catch (err) {
     console.log(err);
