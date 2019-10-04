@@ -8,6 +8,7 @@ exports.handler = async (event, context) => {
   lambda.invoke({
     FunctionName: 'lambda_in_pipeline',
     Qualifier: 'prod',
+    InvocationType: 'Event',
     Payload: JSON.stringify(event, null, 2) // pass params
   }, function(error, data) {
     if (error) {
