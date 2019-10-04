@@ -4,11 +4,10 @@
 var aws = require('aws-sdk');
 var lambda = new aws.Lambda({ region: 'sa-east-1' });
 
-exports.handler = async (event, context) => {
+exports.handler = (event, context) => {
   lambda.invoke({
     FunctionName: 'lambda_in_pipeline',
     Qualifier: 'prod',
-    InvocationType: 'Event',
     Payload: JSON.stringify(event, null, 2) // pass params
   }, function(error, data) {
     if (error) {
