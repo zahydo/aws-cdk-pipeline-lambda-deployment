@@ -11,10 +11,10 @@ exports.handler = (event, context, callback) => {
     Payload: JSON.stringify(event) // pass params
   }, function(err, data) {
     if (err) {
-      context.done('error', err);
+      callback(err);
     }
     if(data.Payload){
-      context.succeed(data.Payload);
+      callback(null, data.Payload);
     }
   });
 }
