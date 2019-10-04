@@ -69,6 +69,7 @@ export class PipelineStack extends Stack {
           "files": [
             "index.js",
             "prehook.js",
+            "proxy.js",
             "node_modules/**/*"
           ]
         }
