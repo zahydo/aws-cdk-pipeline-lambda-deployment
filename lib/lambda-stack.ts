@@ -16,13 +16,6 @@ export class LambdaStack extends Stack {
     const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
       applicationName: 'lambda_application_in_pipeline'
     });
-    // Proxy lambda Function
-    const proxy = new lambda.Function(this, 'Proxy', {
-      code: this.lambdaCode,
-      handler: 'proxy.handler',
-      runtime: lambda.Runtime.NODEJS_10_X,
-      functionName: 'proxy_in_pipeline',
-    });
     // Main lambda Function
     const handler = new lambda.Function(this, 'Lambda', {
       code: this.lambdaCode,
@@ -63,6 +56,13 @@ export class LambdaStack extends Stack {
           alarmName: 'errors_alarm_in_pipeline'
         })
       ]
+    });
+    // Proxy lambda Function
+    const proxy = new lambda.Function(this, 'Proxy', {
+      code: this.lambdaCode,
+      handler: 'proxy.handler',
+      runtime: lambda.Runtime.NODEJS_10_X,
+      functionName: 'proxy_in_pipeline',
     });
     // ApiGateway to test lambda function
     const api = new apigateway.RestApi(this, 'RestApi', {
