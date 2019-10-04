@@ -14,10 +14,12 @@ exports.handler = async (event, context) => {
   let response;
   try {
     response = {
-      'statusCode': 201,
+      'statusCode': 200,
       'body': JSON.stringify({
-        message: 'hello world, this is the fourth version  ',
-        version: 12
+        message: 'Welcome to Lambda function: ' + context.functionName,
+        version: context.functionVersion,
+        path: event.path,
+        resource: event.resource
       })
     }
   } catch (err) {

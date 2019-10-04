@@ -10,7 +10,7 @@ export class LambdaStack extends Stack {
   public readonly lambdaCode: lambda.CfnParametersCode;
   constructor(app: App, id: string, props?: StackProps) {
     super(app, id, props);
-    let lambdaVersion = 12, aliasName = 'prod';
+    let lambdaVersion = 13, aliasName = 'prod';
     // These parameters come from the PipelineDeploymentStack
     this.lambdaCode = lambda.Code.cfnParameters();
     const myApplication = new codedeploy.LambdaApplication(this, 'LambdaApplication', {
@@ -65,7 +65,7 @@ export class LambdaStack extends Stack {
         })
       ]
     });
-    // ApiGateway to test lambda function
+    // ApiGateway to test lambda function traffic shifting
     const api = new apigateway.RestApi(this, 'RestApi', {
       restApiName: 'lambda_rest_api',
       retainDeployments: true,
