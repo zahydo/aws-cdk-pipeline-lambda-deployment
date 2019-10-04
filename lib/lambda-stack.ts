@@ -30,6 +30,7 @@ export class LambdaStack extends Stack {
       runtime: lambda.Runtime.NODEJS_10_X,
       functionName: 'lambda_in_pipeline',
     });
+    handler.grantInvoke(proxy);
     // Version and Alias to manage traffic shiffting
     const version = handler.addVersion(lambdaVersion.toString());
     const alias = new lambda.Alias(this, 'LambdaAlias', {
